@@ -1,5 +1,6 @@
 package com.example.student_management.service;
 
+import com.example.student_management.dto.StudentDTO;
 import com.example.student_management.entity.Student;
 import com.example.student_management.repository.StudentRepository;
 import org.springframework.stereotype.Service;
@@ -15,14 +16,27 @@ public class StudentService {
         this.studentRepository = studentRepository;
     }
 
+    // Add Student
     public Student addStudent(Student student) {
         return studentRepository.save(student);
     }
 
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
+    // Get All Students
+    public List<StudentDTO> getAllStudents() {
+
+        List<Student> students = studentRepository.findAll();
+
+        return students.stream()
+                .map(student -> new StudentDTO(
+                        student.getName(),
+                        student.getEmail(),
+                        student.getCourse(),
+                        student.getAge()
+                ))
+                .toList();
     }
 
+    // Update Student
     public Student updateStudent(Long id, Student newStudent) {
 
         Student oldStudent = studentRepository.findById(id)
@@ -30,12 +44,19 @@ public class StudentService {
 
         oldStudent.setName(newStudent.getName());
         oldStudent.setEmail(newStudent.getEmail());
+        oldStudent.setAge(newStudent.getAge());
         oldStudent.setCourse(newStudent.getCourse());
+
+        if (newStudent.getPassword() != null &&
+                !newStudent.getPassword().isEmpty()) {
+            oldStudent.setPassword(newStudent.getPassword());
+        }
 
         return studentRepository.save(oldStudent);
     }
+
+    // Delete Student
     public void deleteStudent(Long id) {
         studentRepository.deleteById(id);
     }
-
 }
